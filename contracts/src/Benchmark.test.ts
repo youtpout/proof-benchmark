@@ -23,7 +23,9 @@ describe('Benchmark', () => {
   it('add benchmark', async () => {
     console.time("add");
     const { proof: proof0 } = await Add.init(Field(0));
+    console.log("first proof end")
     const { proof: proof1 } = await Add.addNumber(Field(4), proof0, Field(4));
+    console.log("second proof end")
     const { proof: proof2 } = await Add.add(Field(4), proof1, proof0);
     console.timeEnd("add");
   });
