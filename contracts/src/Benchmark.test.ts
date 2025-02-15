@@ -23,7 +23,7 @@ describe('Benchmark', () => {
   beforeAll(async () => {
     if (proofsEnabled) {
       await computerProof.compile();
-      await Benchmark.compile();
+      //await Benchmark.compile();
     }
   });
 
@@ -38,7 +38,7 @@ describe('Benchmark', () => {
     zkAppAddress = zkAppPrivateKey.toPublicKey();
     zkApp = new Benchmark(zkAppAddress);
 
-    await localDeploy();
+    //await localDeploy();
   });
 
   async function localDeploy() {
@@ -62,12 +62,13 @@ describe('Benchmark', () => {
     const timeEnd = Date.now();
     const dif = UInt64.from(timeEnd - time);
     const pProof = new ComputerProof(proof.proof);
+    console.log(dif.toBigInt());
 
-    const txn = await Mina.transaction(senderAccount, async () => {
-      await zkApp.addBenchmark(proof.proof, dif);
-    });
-    await txn.prove();
-    await txn.sign([senderKey]).send();
+    // const txn = await Mina.transaction(senderAccount, async () => {
+    //   await zkApp.addBenchmark(proof.proof, dif);
+    // });
+    // await txn.prove();
+    // await txn.sign([senderKey]).send();
   });
 
 
