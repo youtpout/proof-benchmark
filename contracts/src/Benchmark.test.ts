@@ -1,5 +1,6 @@
-import { AccountUpdate, Field, Mina, PrivateKey, PublicKey } from 'o1js';
-import { Add } from './Add';
+import { AccountUpdate, CircuitString, Field, Mina, PrivateKey, PublicKey, UInt64 } from 'o1js';
+import { Benchmark } from './Benchmark';
+import { ComputerInfo, ComputerProof, computerProof } from './ComputerProof';
 
 /*
  * This file specifies how to test the `Add` example smart contract. It is safe to delete this file and replace
@@ -8,19 +9,22 @@ import { Add } from './Add';
  * See https://docs.minaprotocol.com/zkapps for more info.
  */
 
-const proofsEnabled = false;
+const proofsEnabled = true;
 
-describe('Add', () => {
+describe('Benchmark', () => {
   let deployerAccount: Mina.TestPublicKey,
     deployerKey: PrivateKey,
     senderAccount: Mina.TestPublicKey,
     senderKey: PrivateKey,
     zkAppAddress: PublicKey,
     zkAppPrivateKey: PrivateKey,
-    zkApp: Add;
+    zkApp: Benchmark;
 
   beforeAll(async () => {
-    if (proofsEnabled) await Add.compile();
+    if (proofsEnabled) {
+      await computerProof.compile();
+      await Benchmark.compile();
+    }
   });
 
   beforeEach(async () => {
@@ -32,7 +36,9 @@ describe('Add', () => {
 
     zkAppPrivateKey = PrivateKey.random();
     zkAppAddress = zkAppPrivateKey.toPublicKey();
-    zkApp = new Add(zkAppAddress);
+    zkApp = new Benchmark(zkAppAddress);
+
+    await localDeploy();
   });
 
   async function localDeploy() {
@@ -45,23 +51,24 @@ describe('Add', () => {
     await txn.sign([deployerKey, zkAppPrivateKey]).send();
   }
 
-  it('generates and deploys the `Add` smart contract', async () => {
-    await localDeploy();
-    const num = zkApp.num.get();
-    expect(num).toEqual(Field(1));
-  });
+  it('create benchmark', async () => {
+    const time = Date.now();
+    const computerInfo = new ComputerInfo(CircuitString.fromString("Macbook pro M1"),
+      CircuitString.fromString("M1 8 core"),
+      CircuitString.fromString("Macos"),
+      CircuitString.fromString("Safari"),
+      UInt64.from(8));
+    const proof = await computerProof.bench(computerInfo);
+    const timeEnd = Date.now();
+    const dif = UInt64.from(timeEnd - time);
+    const pProof = new ComputerProof(proof.proof);
 
-  it('correctly updates the num state on the `Add` smart contract', async () => {
-    await localDeploy();
-
-    // update transaction
     const txn = await Mina.transaction(senderAccount, async () => {
-      await zkApp.update();
+      await zkApp.addBenchmark(proof.proof, dif);
     });
     await txn.prove();
     await txn.sign([senderKey]).send();
-
-    const updatedNum = zkApp.num.get();
-    expect(updatedNum).toEqual(Field(3));
   });
+
+
 });
