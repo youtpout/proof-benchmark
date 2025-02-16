@@ -5,6 +5,7 @@ import GradientBG from '../components/GradientBG';
 import styles from '../styles/Home.module.css';
 import './reactCOIServiceWorker';
 import ZkappWorkerClient from './zkappWorkerClient';
+import { stat } from 'fs';
 
 let transactionFee = 0.1;
 const ZKAPP_ADDRESS = 'B62qpXPvmKDf4SaFJynPsT6DyvuxMS9H1pT4TGonDT26m599m7dS9gP';
@@ -71,17 +72,17 @@ export default function Home() {
   };
 
   useEffect(() => {
-
-    const interval = setInterval(() => {
-      if (creatingTransaction) {
+    if (creatingTransaction) {
+      const interval = setInterval(() => {
         getState().then();
-      }
-    }, 1000);
-    return () => clearInterval(interval);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
   }, [creatingTransaction]);
 
   async function getState() {
     const state = await zkappWorkerClient?.getBenchmarkState() || "";
+    console.log("state", state);
     displayStep(state);
   }
 
