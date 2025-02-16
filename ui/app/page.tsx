@@ -67,7 +67,7 @@ export default function Home() {
     console.timeEnd("benchmark")
     displayStep("benchmark end");
 
-    setCreatingTransaction(true);
+    setCreatingTransaction(false);
   };
 
   useEffect(() => {
