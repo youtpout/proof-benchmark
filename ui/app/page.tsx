@@ -66,7 +66,8 @@ export default function Home() {
     console.time("benchmark")
     const transactionJSON = await zkappWorkerClient!.launchBenchmark();
     console.timeEnd("benchmark")
-    displayStep("benchmark end");
+
+    await getState();
 
     setCreatingTransaction(false);
   };
@@ -82,7 +83,6 @@ export default function Home() {
 
   async function getState() {
     const state = await zkappWorkerClient?.getBenchmarkState() || "";
-    console.log("state", state);
     displayStep(state);
   }
 
