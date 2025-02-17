@@ -133,12 +133,12 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (creatingTransaction) {
-      const interval = setInterval(() => {
+    const interval = setInterval(() => {
+      if (creatingTransaction) {
         getState().then();
-      }, 1000);
-      return () => clearInterval(interval);
-    }
+      }
+    }, 1000);
+    return () => clearInterval(interval);
   }, [creatingTransaction]);
 
   async function getState() {
